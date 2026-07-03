@@ -23,7 +23,7 @@
 
 **Disclaimers:** This project is my open-source creation and is not related to miHoYo (HoYoverse). This project is non-profit and not for sale. All game character names and design copyrights belong to miHoYo.
 
-------
+---
 
 ## 界面展示
 
