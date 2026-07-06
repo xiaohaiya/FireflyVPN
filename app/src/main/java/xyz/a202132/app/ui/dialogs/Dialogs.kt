@@ -106,6 +106,7 @@ fun UpdateDialog(
     changelog: String,
     isForce: Boolean,
     onUpdate: () -> Unit,
+    onIgnore: () -> Unit,
     onDismiss: () -> Unit
 ) {
     Dialog(
@@ -161,6 +162,26 @@ fun UpdateDialog(
                 }
                 
                 Spacer(modifier = Modifier.height(24.dp))
+
+                if (!isForce) {
+                    OutlinedButton(
+                        onClick = onIgnore,
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(12.dp),
+                        colors = ButtonDefaults.outlinedButtonColors(
+                            contentColor = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    ) {
+                        Text(
+                            text = stringResource(id = R.string.ignore_current_update),
+                            fontSize = 15.sp,
+                            textAlign = TextAlign.Center,
+                            modifier = Modifier.padding(vertical = 4.dp)
+                        )
+                    }
+
+                    Spacer(modifier = Modifier.height(12.dp))
+                }
                 
                 Row(
                     modifier = Modifier.fillMaxWidth(),

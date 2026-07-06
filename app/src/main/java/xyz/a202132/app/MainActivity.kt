@@ -84,6 +84,8 @@ class MainActivity : ComponentActivity() {
                     val selectedNodeId by viewModel.selectedNodeId.collectAsState()
                     val nodeListCategory by viewModel.nodeListCategory.collectAsState()
                     val favoriteSourceNodeIds by viewModel.favoriteSourceNodeIds.collectAsState()
+                    val skipFavoriteRemovalConfirmation by
+                        viewModel.skipFavoriteRemovalConfirmation.collectAsState()
                     val backupNodeEnabled by viewModel.backupNodeEnabled.collectAsState()
                     val isTesting by viewModel.isTesting.collectAsState()
                     val testingLabel by viewModel.testingLabel.collectAsState()
@@ -196,6 +198,7 @@ class MainActivity : ComponentActivity() {
                                     category = nodeListCategory,
                                     backupNodeEnabled = backupNodeEnabled,
                                     favoriteSourceNodeIds = favoriteSourceNodeIds,
+                                    skipFavoriteRemovalConfirmation = skipFavoriteRemovalConfirmation,
                                     isTesting = isTesting,
                                     testingLabel = testingLabel,
                                     onNodeSelected = { node ->
@@ -204,6 +207,9 @@ class MainActivity : ComponentActivity() {
                                     },
                                     onCategoryChange = { viewModel.setNodeListCategory(it) },
                                     onToggleFavorite = { viewModel.toggleFavoriteNode(it) },
+                                    onSkipFavoriteRemovalConfirmationForSession = {
+                                        viewModel.skipFavoriteRemovalConfirmationForSession()
+                                    },
                                     onImportFromText = { importNodesToFavorites(it, false, null) },
                                     onScanQrCode = { navigateTo(AppRoute.QR_SCANNER) },
                                     onRefresh = { viewModel.refreshNodesWithDefaultTest() },

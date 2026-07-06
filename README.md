@@ -4,8 +4,17 @@
   <img src="./images/firefly.jpg" width="100" alt="Logo">
 </p>
 <p align="center">
+  <img src="https://img.shields.io/badge/Platform-Android-brightgreen" alt="Platform">
+  <img src="https://img.shields.io/badge/Min%20SDK-24%20(Android%207.0)-blue" alt="Min SDK">
+  <img src="https://img.shields.io/badge/Target%20SDK-35%20(Android%2015)-blue" alt="Target SDK">
+  <img src="https://img.shields.io/badge/Language-Kotlin-purple" alt="Language">
+  <img src="https://img.shields.io/badge/Core-Sing--box-green" alt="Core">
+  <img src="https://img.shields.io/badge/License-GPLv3-orange" alt="License">
+</p>
+<p align="center">
   流萤加速器是一款基于 sing-box 核心，支持多种代理协议和智能分流的 Android VPN 客户端。
 </p>
+
 <p align="center">
   <a href="#功能特性">功能特性</a> •
   <a href="#技术架构">技术架构</a> •
@@ -41,7 +50,6 @@
 - 🚀 **多协议支持**：VLESS、VMess、Trojan、Hysteria2、AnyTLS、TUIC、Naive、WireGuard、Shadowsocks、SOCKS4/5、HTTP/HTTPS 代理
 - 🧭 **智能分流**：国内流量直连，国外流量代理，自动识别主流 CN 应用/CDN
 - ⚡ **自动选择**：一键测速，自动选择最优节点
-- 🔧 **协议兼容增强**：自动归一化传输类型（h2→http、xhttp→httpupgrade），完善 ALPN / fingerprint→uTLS / insecure 多别名兼容，支持 Hysteria2 端口跳跃（server_ports）、TUIC id 参数别名
 - 📦 **分应用代理**：精细控制哪些应用走代理或绕过 VPN
 - 🌐 **绕过局域网**：一键开关，局域网流量直连不受影响
 - 🖥️ **局域网代理**：开启 VPN 后提供 HTTP / SOCKS5 局域网代理端口，电脑、平板等同网设备可通过手机当前节点访问网络
@@ -1418,4 +1426,3 @@ target_link_options(native-lib PRIVATE "-Wl,-z,max-page-size=16384")
 - [UnlockTests](https://github.com/oneclickvirt/UnlockTests) - 流媒体解锁测试
 - [JetBrains/Kotlin](https://github.com/JetBrains/kotlin) - Kotlin 语言
 - [Google/Jetpack Compose](https://developer.android.com/jetpack/compose) - UI 框架
-- [Pillo](https://x.com/Pillo_0000) - APP流萤启动图作者

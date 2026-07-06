@@ -30,6 +30,7 @@ class SettingsRepository(private val context: Context) {
         private val APP_THEME_MODE = stringPreferencesKey("app_theme_mode")
         private val PROXY_MODE = stringPreferencesKey("proxy_mode")
         private val LAST_NOTICE_ID = stringPreferencesKey("last_notice_id")
+        private val IGNORED_UPDATE_VERSION_CODE = intPreferencesKey("ignored_update_version_code")
         private val AUTO_CONNECT = booleanPreferencesKey("auto_connect")
         private val USER_AGREEMENT_ACCEPTED = booleanPreferencesKey("user_agreement_accepted")
         
@@ -127,6 +128,10 @@ class SettingsRepository(private val context: Context) {
     val lastNoticeId: Flow<String?> = context.dataStore.data.map { preferences ->
         preferences[LAST_NOTICE_ID]
     }
+
+    val ignoredUpdateVersionCode: Flow<Int?> = context.dataStore.data.map { preferences ->
+        preferences[IGNORED_UPDATE_VERSION_CODE]
+    }
     
     val autoConnect: Flow<Boolean> = context.dataStore.data.map { preferences ->
         preferences[AUTO_CONNECT] ?: false
@@ -190,6 +195,12 @@ class SettingsRepository(private val context: Context) {
     suspend fun setLastNoticeId(noticeId: String) {
         context.dataStore.edit { preferences ->
             preferences[LAST_NOTICE_ID] = noticeId
+        }
+    }
+
+    suspend fun setIgnoredUpdateVersionCode(versionCode: Int) {
+        context.dataStore.edit { preferences ->
+            preferences[IGNORED_UPDATE_VERSION_CODE] = versionCode
         }
     }
     

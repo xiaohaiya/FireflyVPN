@@ -37,7 +37,7 @@ object AppConfig {
     const val NOTICE_URL = "https://your-server.com/api/notice" // 公告通知URL
     const val WEBSITE_URL = "https://your-website.com" // 官网网站，留空则隐藏侧边栏中的官方网站
 
-    // 各种请求的 API 超时时间（毫秒）
+    // API timeout (milliseconds) for retry-controlled requests
     const val NODE_REQUEST_TIMEOUT_MS = 25000L // 节点请求超时（毫秒）
     const val NOTICE_REQUEST_TIMEOUT_MS = 25000L // 公告请求超时（毫秒）
     const val UPDATE_REQUEST_TIMEOUT_MS = 25000L // 更新请求超时（毫秒）

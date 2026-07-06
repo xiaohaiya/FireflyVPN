@@ -27,6 +27,8 @@ import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Star
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Checkbox
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
@@ -36,6 +38,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -52,6 +55,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.DialogProperties
 import xyz.a202132.app.data.model.LatencyLevel
 import xyz.a202132.app.data.model.Node
 import xyz.a202132.app.data.model.NodeListCategory
@@ -68,11 +72,13 @@ fun NodeListScreen(
     category: NodeListCategory,
     backupNodeEnabled: Boolean,
     favoriteSourceNodeIds: Set<String>,
+    skipFavoriteRemovalConfirmation: Boolean,
     isTesting: Boolean,
     testingLabel: String? = null,
     onNodeSelected: (Node) -> Unit,
     onCategoryChange: (NodeListCategory) -> Unit,
     onToggleFavorite: (Node) -> Unit,
+    onSkipFavoriteRemovalConfirmationForSession: () -> Unit,
     onImportFromText: (String) -> Unit,
     onScanQrCode: () -> Unit,
     onRefresh: () -> Unit,
@@ -82,6 +88,8 @@ fun NodeListScreen(
     var showSearch by remember { mutableStateOf(false) }
     var keyword by remember { mutableStateOf("") }
     var isClosing by remember { mutableStateOf(false) }
+    var favoriteRemovalCandidate by remember { mutableStateOf<Node?>(null) }
+    var skipConfirmationForSessionChecked by remember { mutableStateOf(false) }
 
     val handleBack = {
         if (!isClosing) {
@@ -94,6 +102,16 @@ fun NodeListScreen(
         if (!isClosing) {
             isClosing = true
             onNodeSelected(node)
+        }
+    }
+
+    val handleToggleFavorite: (Node, Boolean) -> Unit = { node, isFavorite ->
+        when {
+            !isFavorite || skipFavoriteRemovalConfirmation -> onToggleFavorite(node)
+            else -> {
+                skipConfirmationForSessionChecked = false
+                favoriteRemovalCandidate = node
+            }
         }
     }
 
@@ -148,8 +166,72 @@ fun NodeListScreen(
             onKeywordChange = { keyword = it },
             onNodeSelected = handleNodeSelected,
             onCategoryChange = onCategoryChange,
-            onToggleFavorite = onToggleFavorite,
+            onToggleFavorite = handleToggleFavorite,
             interactionEnabled = !isClosing,
+        )
+    }
+
+    favoriteRemovalCandidate?.let { node ->
+        AlertDialog(
+            onDismissRequest = {},
+            title = {
+                Text(text = "取消收藏")
+            },
+            text = {
+                Column {
+                    Text(text = "取消收藏的节点会从收藏节点中删除，是否确认删除？")
+                    Spacer(modifier = Modifier.height(12.dp))
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clip(RoundedCornerShape(8.dp))
+                            .clickable {
+                                skipConfirmationForSessionChecked =
+                                    !skipConfirmationForSessionChecked
+                            }
+                            .padding(vertical = 4.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Checkbox(
+                            checked = skipConfirmationForSessionChecked,
+                            onCheckedChange = { skipConfirmationForSessionChecked = it }
+                        )
+                        Text(
+                            text = "本次使用 APP 不再提示",
+                            color = MaterialTheme.colorScheme.onSurface
+                        )
+                    }
+                }
+            },
+            dismissButton = {
+                TextButton(
+                    onClick = {
+                        if (skipConfirmationForSessionChecked) {
+                            onSkipFavoriteRemovalConfirmationForSession()
+                        }
+                        favoriteRemovalCandidate = null
+                    }
+                ) {
+                    Text("取消")
+                }
+            },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        if (skipConfirmationForSessionChecked) {
+                            onSkipFavoriteRemovalConfirmationForSession()
+                        }
+                        favoriteRemovalCandidate = null
+                        onToggleFavorite(node)
+                    }
+                ) {
+                    Text("确认")
+                }
+            },
+            properties = DialogProperties(
+                dismissOnBackPress = false,
+                dismissOnClickOutside = false
+            )
         )
     }
 }
@@ -236,7 +318,7 @@ private fun NodeListContent(
     onKeywordChange: (String) -> Unit,
     onNodeSelected: (Node) -> Unit,
     onCategoryChange: (NodeListCategory) -> Unit,
-    onToggleFavorite: (Node) -> Unit,
+    onToggleFavorite: (Node, Boolean) -> Unit,
     interactionEnabled: Boolean,
 ) {
     var frozenNodeOrderIds by remember { mutableStateOf<List<String>?>(null) }
@@ -370,14 +452,17 @@ private fun NodeListContent(
                         items = filteredNodes,
                         key = { it.id }
                     ) { node ->
+                        val isFavorite =
+                            node.source == NodeSource.FAVORITE ||
+                                favoriteSourceNodeIds.contains(node.id)
                         NodeListItem(
                             node = node,
                             isSelected = node.id == selectedNodeId,
-                            isFavorite = node.source == NodeSource.FAVORITE || favoriteSourceNodeIds.contains(node.id),
+                            isFavorite = isFavorite,
                             isTesting = isTesting,
                             enabled = interactionEnabled,
                             onClick = { onNodeSelected(node) },
-                            onToggleFavorite = { onToggleFavorite(node) }
+                            onToggleFavorite = { onToggleFavorite(node, isFavorite) }
                         )
                     }
                 }

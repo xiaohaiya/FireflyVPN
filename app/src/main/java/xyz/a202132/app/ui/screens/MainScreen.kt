@@ -604,6 +604,7 @@ fun MainScreen(
             changelog = updateInfo?.changelog ?: "",
             isForce = updateInfo?.isForce == 1,
             onUpdate = { viewModel.openDownloadUrl() },
+            onIgnore = { viewModel.ignoreCurrentUpdate() },
             onDismiss = { viewModel.dismissUpdate() }
         )
     }

@@ -144,6 +144,10 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     val infoDialogMessage = _infoDialogMessage.asStateFlow()
     private val _showStartupDefaultTestChoiceDialog = MutableStateFlow(false)
     val showStartupDefaultTestChoiceDialog = _showStartupDefaultTestChoiceDialog.asStateFlow()
+
+    // 仅在本次 APP 进程存活期间有效，不写入 DataStore。
+    private val _skipFavoriteRemovalConfirmation = MutableStateFlow(false)
+    val skipFavoriteRemovalConfirmation = _skipFavoriteRemovalConfirmation.asStateFlow()
     
     // 阻止自动选择状态
     private val _isAutoSelecting = MutableStateFlow(false)
@@ -1422,6 +1426,10 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
+    fun skipFavoriteRemovalConfirmationForSession() {
+        _skipFavoriteRemovalConfirmation.value = true
+    }
+
     fun toggleFavoriteNode(node: Node) {
         viewModelScope.launch(Dispatchers.IO) {
             if (node.source == NodeSource.FAVORITE) {
@@ -1708,7 +1716,19 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                     }
                 
                 if (info.versionCode > currentVersionCode) {
-                    _updateInfo.value = info
+                    val ignoredVersionCode =
+                        settingsRepository.ignoredUpdateVersionCode.first()
+                    val isIgnoredOptionalUpdate =
+                        info.isForce != 1 && ignoredVersionCode == info.versionCode
+
+                    if (isIgnoredOptionalUpdate) {
+                        _updateInfo.value = null
+                        if (!isAuto) {
+                            _error.value = "当前新版本已被忽略"
+                        }
+                    } else {
+                        _updateInfo.value = info
+                    }
                 } else {
                     if (!isAuto) {
                         _error.value = "已是最新版本"
@@ -1818,6 +1838,17 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     
     fun dismissUpdate() {
         _updateInfo.value = null
+    }
+
+    fun ignoreCurrentUpdate() {
+        val info = _updateInfo.value ?: return
+        if (info.isForce == 1) return
+
+        _updateInfo.value = null
+        viewModelScope.launch {
+            settingsRepository.setIgnoredUpdateVersionCode(info.versionCode)
+            RuntimeLog.info(tag, "Ignored optional update: versionCode=${info.versionCode}")
+        }
     }
     
     fun clearError() {
